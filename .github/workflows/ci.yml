@@ -41,5 +41,5 @@ jobs:
     - name: Run tests
       run: |
         # Ensure app.py can find MongoDB
-        export MONGO_URI="mongodb://localhost:27017/"
+        export MONGO_URI="mongodb://mongodb:27017/"
         pytest
