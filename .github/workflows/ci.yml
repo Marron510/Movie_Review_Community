@@ -1,0 +1,45 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: --health-cmd "mongo --eval 'db.runCommand({ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x' # Use a compatible Python version
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Wait for MongoDB to be ready
+      run: |
+        # Simple wait loop for MongoDB service
+        for i in $(seq 1 10); do
+          nc -z localhost 27017 && echo "MongoDB is ready!" && break
+          echo "Waiting for MongoDB... ($i/10)"
+          sleep 1
+        done
+        nc -z localhost 27017 || (echo "MongoDB did not start in time!" && exit 1)
+
+    - name: Run tests
+      run: |
+        # Ensure app.py can find MongoDB
+        export MONGO_URI="mongodb://localhost:27017/"
+        pytest
