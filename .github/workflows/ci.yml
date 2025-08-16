@@ -9,11 +9,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
+    
         
 
     steps:
@@ -24,6 +20,9 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.x' # Use a compatible Python version
+
+    - name: Run MongoDB container
+      run: docker run --rm --name mongodb -p 27017:27017 -d mongo:latest
 
     - name: Install dependencies
       run: pip install -r requirements.txt
@@ -41,19 +40,19 @@ jobs:
       run: |
         # Simple wait loop for MongoDB service
         for i in $(seq 1 20); do
-          nc -z mongodb 27017 && echo "MongoDB is ready!" && break
+          nc -z localhost 27017 && echo "MongoDB is ready!" && break
           echo "Waiting for MongoDB... ($i/20)"
           sleep 1
         done
-        nc -z mongodb 27017 || (echo "MongoDB did not start in time!" && exit 1)
+        nc -z localhost 27017 || (echo "MongoDB did not start in time!" && exit 1)
 
     - name: Seed database
       run: |
-        export MONGO_URI="mongodb://mongodb:27017/" # Ensure seed script connects to the service
+        export MONGO_URI="mongodb://localhost:27017/" # Ensure seed script connects to the service
         python seed_db.py
 
     - name: Run tests
       run: |
         # Ensure app.py can find MongoDB
-        export MONGO_URI="mongodb://mongodb:27017/"
+        export MONGO_URI="mongodb://localhost:27017/"
         pytest
