@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 # MongoDB 설정
-MONGO_URI = "mongodb://localhost:27017/"
+MONGO_URI = "mongodb://mongodb:27017/"
 client = MongoClient(MONGO_URI)
 db = client.movie_community_db # 데이터베이스 이름
 movies_collection = db.movies # 컬렉션 이름
