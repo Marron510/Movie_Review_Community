@@ -26,18 +26,15 @@ def movie_list():
     return render_template('movies.html', movies=movies)
 
 # 영화 상세 페이지를 위한 동적 라우트
-@app.route('/movie/<movie_id>') # movie_id는 ObjectId 문자열이므로 int가 아님
+@app.route('/movie/<int:movie_id>')
 def movie_detail(movie_id):
-    # MongoDB에서 특정 영화 가져오기
-    try:
-        movie = movies_collection.find_one({'_id': ObjectId(movie_id)})
-    except:
-        abort(404)
+    # MongoDB에서 특정 영화 가져오기 (id 필드 사용)
+    movie = movies_collection.find_one({'id': movie_id})
 
     if movie is None:
         abort(404) # 영화가 없으면 404 Not Found 오류 발생
 
-    movie['id'] = str(movie['_id']) # ObjectId를 문자열로 변환
+    movie['id'] = str(movie['id']) # id를 문자열로 변환 (템플릿 호환성)
     return render_template('movie_detail.html', movie=movie)
 
 if __name__ == '__main__':
