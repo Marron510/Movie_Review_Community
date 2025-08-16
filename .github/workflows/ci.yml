@@ -28,15 +28,18 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
+    - name: Install MongoDB client tools
+      run: sudo apt-get update && sudo apt-get install -y mongodb-clients
+
     - name: Wait for MongoDB to be ready
       run: |
-        # Robust wait loop for MongoDB service
+        # Simple wait loop for MongoDB service
         for i in $(seq 1 20); do
-          mongo --host mongodb --port 27017 --eval 'db.runCommand({ping: 1})' > /dev/null 2>&1 && echo "MongoDB is ready!" && break
+          nc -z mongodb 27017 && echo "MongoDB is ready!" && break
           echo "Waiting for MongoDB... ($i/20)"
           sleep 1
         done
-        mongo --host mongodb --port 27017 --eval 'db.runCommand({ping: 1})' > /dev/null 2>&1 || (echo "MongoDB did not start in time!" && exit 1)
+        nc -z mongodb 27017 || (echo "MongoDB did not start in time!" && exit 1)
 
     - name: Seed database
       run: |
