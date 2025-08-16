@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, redirect, url_for, abort
 from pymongo import MongoClient
 from bson.objectid import ObjectId # To handle MongoDB's _id
@@ -5,7 +6,7 @@ from bson.objectid import ObjectId # To handle MongoDB's _id
 app = Flask(__name__)
 
 # MongoDB 설정
-MONGO_URI = "mongodb://localhost:27017/"
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
 client = MongoClient(MONGO_URI)
 db = client.movie_community_db # 데이터베이스 이름
 movies_collection = db.movies # 컬렉션 이름
